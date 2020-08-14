@@ -1,4 +1,4 @@
-module coderunners.com/test
+module github.com/Deepok101/coderunners
 
 go 1.14
 
