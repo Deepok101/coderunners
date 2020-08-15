@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Deepok101/coderunners/pkg/Docker/docker"
+	docker "github.com/Deepok101/coderunners/pkg/Docker"
 
 	"github.com/gorilla/mux"
 )
