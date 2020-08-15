@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/Deepok101/coderunners/pkg/queue"
+	utils "github.com/Deepok101/coderunners/utils/queue"
 	"github.com/gorilla/mux"
 )
 
@@ -13,7 +13,7 @@ type code struct {
 	content  string
 }
 
-var cQueue queue.Queue
+var cQueue utils.Queue
 
 func runCodeHandler(w http.ResponseWriter, r *http.Request) {
 	var c code
@@ -28,7 +28,7 @@ func runCodeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // InitializeRouter initializes the main http router of the application
-func InitializeRouter(codeQueue *queue.CodeQueue) {
+func InitializeRouter(codeQueue *utils.CodeQueue) {
 	cQueue = codeQueue
 	router := mux.NewRouter()
 	router.HandleFunc("/run", runCodeHandler).Methods("POST")

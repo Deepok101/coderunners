@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/Deepok101/coderunners/pkg/queue"
+	"github.com/Deepok101/coderunners/pkg/Docker/docker"
+	"github.com/Deepok101/coderunners/utils/queue/utils"
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -12,7 +13,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	var codeQueue queue.Queue
-	codeQueue = queue.NewCodeQueue()
-	
+	var cQueue utils.Queue
+	cQueue = utils.NewCodeQueue()
+	crDocker := docker.CreateNewCoderunnerDockerWrapper()
+	crDocker.CreateClient
+
 }

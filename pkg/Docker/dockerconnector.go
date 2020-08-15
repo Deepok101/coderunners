@@ -5,7 +5,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/Deepok101/coderunners/pkg/queue"
+	utils "github.com/Deepok101/coderunners/utils/queue"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -36,8 +36,44 @@ func (c *coderunnerDockerWrapper) CreateClient() error {
 	return nil
 }
 
-func (c *coderunnerDockerWrapper) ExecuteCode(code queue.Code) error {
-	code
+func (c *coderunnerDockerWrapper) ExecuteCode(code utils.Code) error {
+	ctx := context.Background()
+	reader, err := c.dockerClient.ImagePull(ctx, "python", types.ImagePullOptions{})
+
+	io.Copy(os.Stdout, reader)
+
+	res, err := c.dockerClient.ContainerCreate(ctx, &container.Config{
+		Image: "python",
+		Cmd:   []string{"echo", "hello world"},
+		Tty:   false,
+	}, nil, nil, nil, "")
+
+	if err != nil {
+		return err
+	}
+
+	if err := c.dockerClient.ContainerStart(ctx, res.ID, types.ContainerStartOptions{}); err != nil {
+		return err
+	}
+
+	statusCh, errCh := c.dockerClient.ContainerWait(ctx, res.ID, container.WaitConditionNotRunning)
+
+	select {
+	case err := <-errCh:
+		if err != nil {
+			return err
+		}
+	case <-statusCh:
+	}
+
+	out, err := c.dockerClient.ContainerLogs(ctx, res.ID, types.ContainerLogsOptions{ShowStdout: true})
+	if err != nil {
+		return err
+	}
+
+	stdcopy.StdCopy(os.Stdout, os.Stderr, out)
+	return nil
+
 }
 
 func CreateAndRunDockerContainer() error {
