@@ -12,8 +12,8 @@ type Queue interface {
 
 // Code represents a data structure holding a programming language and its code text
 type Code struct {
-	language string
-	content  string
+	Language string
+	Content  string
 }
 
 type CodeQueue struct {

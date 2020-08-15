@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/Deepok101/coderunners/pkg/Docker/docker"
-	"github.com/Deepok101/coderunners/utils/queue/utils"
+	"github.com/Deepok101/coderunners/pkg/docker"
+	utils "github.com/Deepok101/coderunners/utils/queue"
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -13,9 +13,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	var cQueue utils.Queue
-	cQueue = utils.NewCodeQueue()
+	// var cQueue utils.Queue
+	// cQueue = utils.NewCodeQueue()
 	crDocker := docker.CreateNewCoderunnerDockerWrapper()
-	crDocker.CreateClient
+	crDocker.CreateClient()
+	crDocker.ExecuteCode(utils.Code{Language: "python", Content: "print('a')"})
 
 }

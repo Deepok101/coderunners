@@ -16,6 +16,7 @@ import (
 // CoderunnerDockerWrapper is a Docker client wrapper that manages all the work related to playing with docker containers
 type CoderunnerDockerWrapper interface {
 	CreateClient() error
+	ExecuteCode(utils.Code) error
 }
 
 type coderunnerDockerWrapper struct {
