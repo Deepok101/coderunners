@@ -2,12 +2,9 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
-	docker "github.com/Deepok101/coderunners/pkg/Docker"
-
-	"github.com/gorilla/mux"
+	"github.com/Deepok101/coderunners/pkg/queue"
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -15,9 +12,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-
-	docker.ConnectDocker()
-	router := mux.NewRouter()
-	router.HandleFunc("/", handler).Methods("GET")
-	log.Fatal(http.ListenAndServe(":8080", router))
+	var codeQueue queue.Queue
+	codeQueue = queue.NewCodeQueue()
+	
 }

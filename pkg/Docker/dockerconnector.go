@@ -5,19 +5,48 @@ import (
 	"io"
 	"os"
 
+	"github.com/Deepok101/coderunners/pkg/queue"
+
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/stdcopy"
 )
 
-func ConnectDocker() {
+// CoderunnerDockerWrapper is a Docker client wrapper that manages all the work related to playing with docker containers
+type CoderunnerDockerWrapper interface {
+	CreateClient() error
+}
+
+type coderunnerDockerWrapper struct {
+	dockerClient *client.Client
+}
+
+// CreateNewCoderunnerDockerWrapper creates a new empty CoderunnerDockerWrappe instance
+func CreateNewCoderunnerDockerWrapper() CoderunnerDockerWrapper {
+	return &coderunnerDockerWrapper{}
+}
+
+func (c *coderunnerDockerWrapper) CreateClient() error {
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return err
+	}
+	c.dockerClient = cli
+	return nil
+}
+
+func (c *coderunnerDockerWrapper) ExecuteCode(code queue.Code) error {
+	code
+}
+
+func CreateAndRunDockerContainer() error {
 	ctx := context.Background()
 	imageName := "ubuntu"
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	reader, err := cli.ImagePull(ctx, imageName, types.ImagePullOptions{})
@@ -30,11 +59,11 @@ func ConnectDocker() {
 	}, nil, nil, nil, "")
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	if err := cli.ContainerStart(ctx, res.ID, types.ContainerStartOptions{}); err != nil {
-		panic(err)
+		return err
 	}
 
 	statusCh, errCh := cli.ContainerWait(ctx, res.ID, container.WaitConditionNotRunning)
@@ -42,15 +71,16 @@ func ConnectDocker() {
 	select {
 	case err := <-errCh:
 		if err != nil {
-			panic(err)
+			return err
 		}
 	case <-statusCh:
 	}
 
 	out, err := cli.ContainerLogs(ctx, res.ID, types.ContainerLogsOptions{ShowStdout: true})
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	stdcopy.StdCopy(os.Stdout, os.Stderr, out)
+	return nil
 }
