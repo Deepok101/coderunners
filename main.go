@@ -1,22 +1,34 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
-
-	"github.com/Deepok101/coderunners/pkg/docker"
-	utils "github.com/Deepok101/coderunners/utils/queue"
+	rest "github.com/Deepok101/coderunners/pkg/http"
+	"github.com/Deepok101/coderunners/pkg/services"
 )
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hi there, I love %s!", r.URL.Path[1:])
+func main() {
+	services.NewServices()
+	go executeCodeQueue()
+	rest.InitializeRouter()
 }
 
-func main() {
-	// var cQueue utils.Queue
-	// cQueue = utils.NewCodeQueue()
-	crDocker := docker.CreateNewCoderunnerDockerWrapper()
-	crDocker.CreateClient()
-	crDocker.ExecuteCode(utils.Code{Language: "python", Content: "print('a')"})
+func executeCodeQueue() {
+	services := services.GetServices()
+	cQueue := services.CodeQueue
+	codePlayground := services.Playground
 
+	for {
+		if cQueue.Length() != 0 {
+			code, err := cQueue.Dequeue()
+			if err != nil {
+				code.Output <- err.Error()
+				break
+			}
+			out, err := codePlayground.ExecuteCode(code)
+			if err != nil {
+				code.Output <- err.Error()
+				return
+			}
+			code.Output <- out
+		}
+	}
 }

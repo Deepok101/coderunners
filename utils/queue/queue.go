@@ -7,13 +7,15 @@ import (
 // Queue represents the queue data structure
 type Queue interface {
 	Enqueue(interface{}) error
-	Dequeue() error
+	Dequeue() (Code, error)
+	Length() int
 }
 
 // Code represents a data structure holding a programming language and its code text
 type Code struct {
 	Language string
 	Content  string
+	Output   chan string
 }
 
 type CodeQueue struct {
@@ -41,13 +43,20 @@ func (c *CodeQueue) Enqueue(el interface{}) error {
 	return nil
 }
 
-func (c *CodeQueue) Dequeue() error {
+func (c *CodeQueue) Dequeue() (Code, error) {
 	if c.length == 0 {
-		return errors.New("Nothing to deqeue")
+		return Code{}, errors.New("Nothing to deqeue")
 	}
+
+	popedEl := c.list[0]
+
 	newList := c.list[1:]
 	c.list = newList
 	c.length = len(newList)
 
-	return nil
+	return popedEl, nil
+}
+
+func (c *CodeQueue) Length() int {
+	return c.length
 }
