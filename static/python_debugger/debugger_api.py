@@ -1,6 +1,7 @@
 import flask
 import debugger
 import multiprocessing
+import template
 
 app = flask.Flask(__name__)
 debugq = multiprocessing.Queue()
@@ -13,7 +14,9 @@ breakpointQ = multiprocessing.Queue()
 def setup():
     global d
     request_json = flask.request.get_json()
-    print(request_json)
+    if request_json == None:
+        return ("Please set the content-type to application/json and send data in json format", 400)
+    
     arrayOfBreakpoints = request_json.get('breakpoints')
 
     if type(arrayOfBreakpoints) != type([]):
@@ -23,7 +26,7 @@ def setup():
             return ("", 400)
 
     d = debugger.Debugger(arrayOfBreakpoints)
-    debugprocess = multiprocessing.Process(target=d.debug, args=(breakpointQ, outputq, debugq, debugger.coderunners_main))
+    debugprocess = multiprocessing.Process(target=d.debug, args=(breakpointQ, outputq, debugq, template.coderunners_exec))
     debugprocess.start()
     output = outputq.get()
     return (flask.jsonify(output), 200)

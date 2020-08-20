@@ -9,6 +9,8 @@ require (
 	github.com/docker/docker v17.12.0-ce-rc1.0.20200813181028-0906c7fae934+incompatible
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
+	github.com/go-playground/validator v9.31.0+incompatible
+	github.com/go-playground/validator/v10 v10.3.0
 	github.com/gogo/protobuf v1.3.1 // indirect
 	github.com/gorilla/mux v1.7.4
 	github.com/moby/term v0.0.0-20200611042045-63b9a826fb74 // indirect

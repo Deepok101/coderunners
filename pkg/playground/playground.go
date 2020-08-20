@@ -19,8 +19,10 @@ type playground struct {
 	execPath string
 }
 
+// TODO REFACTOR
 func NewPlayground(customPath string) Playground {
 	p := playground{}
+
 	if customPath == "" {
 		folderName := "coderunners"
 		cwd, err := os.Getwd()
@@ -41,10 +43,6 @@ func NewPlayground(customPath string) Playground {
 		}
 	}
 
-	err = os.Chdir(p.execPath)
-	if err != nil {
-		return nil
-	}
 	return p
 }
 

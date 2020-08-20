@@ -24,6 +24,7 @@ func executeCodeQueue() {
 				break
 			}
 			out, err := codePlayground.ExecuteCode(code)
+			// TODO: To send the output of the code execution to the code.output channel could be executed in the ExecuteCode method
 			if err != nil {
 				code.Output <- err.Error()
 				return

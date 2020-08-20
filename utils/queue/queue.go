@@ -13,8 +13,8 @@ type Queue interface {
 
 // Code represents a data structure holding a programming language and its code text
 type Code struct {
-	Language string
-	Content  string
+	Language string `json:"language"`
+	Content  string `json:"content"`
 	Output   chan string
 }
 
