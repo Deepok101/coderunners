@@ -13,10 +13,10 @@ class Debugger:
     # TODO: Improve the breakpoint mechanisms
     # parentFunc
     # currFunc
-    def __init__(self):  
+    def __init__(self, arrayOfBreakPoints):  
         self.cmd = 'run'
         self.currFrame = None
-        self.breakPoints = [1]
+        self.breakPoints = arrayOfBreakPoints
 
     def trace_calls(self, frame, event, arg):
         if event != "call":
@@ -104,16 +104,9 @@ class Debugger:
         fn()
 
 if __name__ == '__main__':
-    d = Debugger()
+    d = Debugger([1])
     debugq = multiprocessing.Queue()
     outputq = multiprocessing.Queue()
     breakpointQ = multiprocessing.Queue()
     debugprocess = multiprocessing.Process(target=d.debug, args=(breakpointQ, outputq, debugq, coderunners_main))
     debugprocess.start()
-
-    breakpointQ.put(6)
-    debugq.put("run")
-    debugq.put("run")
-    # debugq.put("step_over")
-    # debugq.put("step_over")
-    # debugq.put("step_over")

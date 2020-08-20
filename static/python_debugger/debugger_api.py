@@ -1,21 +1,40 @@
 import flask
-import debuger
+import debugger
 import multiprocessing
 
 app = flask.Flask(__name__)
-d = debuger.Debugger()
 debugq = multiprocessing.Queue()
 outputq = multiprocessing.Queue()
 breakpointQ = multiprocessing.Queue()
 
 # TODO: error handling for each route
+# TODO: handling end of function
+@app.route('/debug/setup', methods=['POST'])
+def setup():
+    global d
+    request_json = flask.request.get_json()
+    print(request_json)
+    arrayOfBreakpoints = request_json.get('breakpoints')
+
+    if type(arrayOfBreakpoints) != type([]):
+        return ("", 400)
+    for i in arrayOfBreakpoints:
+        if type(i) != int:
+            return ("", 400)
+
+    d = debugger.Debugger(arrayOfBreakpoints)
+    debugprocess = multiprocessing.Process(target=d.debug, args=(breakpointQ, outputq, debugq, debugger.coderunners_main))
+    debugprocess.start()
+    output = outputq.get()
+    return (flask.jsonify(output), 200)
+
 
 @app.route('/debug/set_breakpoint/<lineNo>', methods=['GET'])
 def setBreakpoint(lineNo):
     if type(lineNo) != int:
-        return flask.Response("Line number must be an integer", status=400)
+        return ("Line number must be an integer", 400)
     breakpointQ.put(lineNo)
-    return flask.Response(status=200) 
+    return ("", 200)
 
 @app.route('/debug/stepin', methods=['GET'])
 def stepin():
@@ -35,13 +54,11 @@ def stepover():
     output = outputq.get()
     return flask.jsonify(output)
 
-@app.route('run', methods=['GET'])
+@app.route('/run', methods=['GET'])
 def run():
     debugq.put("run")
     output = outputq.get()
     return flask.jsonify(output)
 
 if __name__ == '__main__':
-    debugprocess = multiprocessing.Process(target=d.debug, args=(breakpointQ, outputq, debugq, debuger.coderunners_main))
-    debugprocess.start()
     app.run(host='localhost', port='8000')
