@@ -6,7 +6,6 @@ Currently, it only supports Python.
 
 ## Setup
 
-Follow these steps to start running and debugging Python code
 1. Run `go run main.go` to start the CodeRunners API.
 
 You can now run queries through the `localhost:80` base url.
