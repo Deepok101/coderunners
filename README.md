@@ -23,6 +23,6 @@ All queries will have a `json` body. Make sure to set the `content-type` of all 
 | `/debug/stepout`| `GET`  |                                                                              | Execute debug step-in functionality |
 | `/debug/stepover`| `GET`  |                                                                              | Execute debug step-over functionality |
 | `/debug/continue`| `GET`  |                                                                              | Execute debug continue functionality |
-| `/debug/setbreakpoint/{lineNo}`| `GET`| `lineNo` (Query Parameter) : <CODE LINE NUMBER>                 | Add a breakpoint to a specific line.  |
+| `/debug/setbreakpoint/{lineNo}`| `GET`| `lineNo` (Query Parameter) : \<CODE LINE NUMBER>                 | Add a breakpoint to a specific line.  |
   
 If you want more information on what step-in, step-over and continue debug functionalities do, click [here](https://winintro.ru/windowspowershellhelp.en/html/62095f16-dd77-4840-bd65-49cebb354c08.htm#:~:text=In%20the%20Command%20Pane%2C%20type%20O%20and%20press%20ENTER%2C%20or,Debug%20menu%2C%20click%20Step%20Out.&text=Continues%20execution%20to%20the%20end,menu%2C%20click%20Run%2FContinue)
