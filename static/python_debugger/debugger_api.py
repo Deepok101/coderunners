@@ -34,7 +34,7 @@ def setup():
 
 @app.route('/debug/set_breakpoint/<lineNo>', methods=['GET'])
 def setBreakpoint(lineNo):
-    if type(lineNo) != int:
+    if type(int(lineNo)) != int:
         return ("Line number must be an integer", 400)
     breakpointQ.put(lineNo)
     return ("", 200)

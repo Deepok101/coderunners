@@ -13,6 +13,7 @@ func InitializeRouter() {
 	router.HandleFunc("/debug", debugSetupHandler).Methods("POST")
 	router.HandleFunc("/debug/stepin", debugStepIn).Methods("GET")
 	router.HandleFunc("/debug/stepout", debugStepOut).Methods("GET")
+	router.HandleFunc("/debug/stepover", debugStepOver).Methods("GET")
 	router.HandleFunc("/debug/setbreakpoint/{lineNo}", debugSetBreakpoint).Methods("GET")
 	http.ListenAndServe(":80", router)
 }
