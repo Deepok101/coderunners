@@ -19,6 +19,7 @@ type Debugger struct {
 	LineNo         int                    `json:"lineNo"`
 	Function       string                 `json:"funcName"`
 	Breakpoints    []int
+	Code           string
 }
 
 func NewDebugger() *Debugger {
@@ -27,8 +28,7 @@ func NewDebugger() *Debugger {
 
 func (d *Debugger) SetBreakpoint(breakpoint int) error {
 	d.Breakpoints = append(d.Breakpoints, breakpoint)
-	if d.running == true {
-		print("aaaa")
+	if d.running {
 		_, err := http.Get(fmt.Sprintf("http://localhost:8000/debug/set_breakpoint/%d", breakpoint))
 		if err != nil {
 			return err
@@ -40,7 +40,7 @@ func (d *Debugger) SetBreakpoint(breakpoint int) error {
 func (d *Debugger) Debug(code utils.Code) {
 	switch code.Language {
 	case "python":
-		err := d.setupPythonDebug()
+		err := d.setupPythonDebug(code)
 		if err != nil {
 			print(err.Error())
 			return
@@ -48,7 +48,7 @@ func (d *Debugger) Debug(code utils.Code) {
 	}
 }
 
-func (d *Debugger) setupPythonDebug() error {
+func (d *Debugger) setupPythonDebug(code utils.Code) error {
 	cwd, err := os.Getwd()
 	pathToDebugger := filepath.FromSlash(cwd + "/static/python_debugger/debugger_api.py")
 	cmd := exec.Command("python", pathToDebugger)
@@ -62,6 +62,14 @@ func (d *Debugger) setupPythonDebug() error {
 	requestBody, _ := json.Marshal(map[string][]int{
 		"breakpoints": d.Breakpoints,
 	})
+
+	// Write to template file
+	f, _ := os.Open(cwd + "/static/python_debugger/template.py")
+	f.Truncate(0)
+	f.Seek(0, 0)
+	fmt.Fprint(f, code.Content)
+
+	// Call Python Debugger API
 	resp, err := http.Post("http://localhost:8000/debug/setup", "application/json", bytes.NewBuffer(requestBody))
 	if err != nil {
 		return err
