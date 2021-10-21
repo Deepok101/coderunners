@@ -34,9 +34,11 @@ class Debugger:
 
         self.outputq.put(
                 {
+                    "running": True,
                     "funcName": funcName, 
                     "lineNo": lineNo,
-                    "localVars": localVars
+                    "localVars": localVars,
+                    "breakpoints": self.breakPoints
                 }
             )
 
@@ -67,9 +69,11 @@ class Debugger:
         localVars = frame.f_locals
         self.outputq.put(
                 {
+                    "running": True,
                     "funcName": funcName, 
                     "lineNo": lineNo,
-                    "localVars": localVars
+                    "localVars": localVars,
+                    "breakpoints": self.breakPoints
                 }
             )
 
@@ -102,6 +106,8 @@ class Debugger:
         self.breakpointQ = breakpointQ
         settrace(self.trace_calls)
         fn()
+        self.outputq.put({"running": False})
+        exit()
 
 if __name__ == '__main__':
     d = Debugger([1])

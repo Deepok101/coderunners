@@ -41,8 +41,6 @@ func debugSetupHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//fmt.Printf("%+v\n", c)
-
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

@@ -3,9 +3,11 @@ package main
 import (
 	rest "github.com/Deepok101/coderunners/pkg/http"
 	"github.com/Deepok101/coderunners/pkg/services"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	godotenv.Load(".env")
 	services.NewServices()
 	go executeCodeQueue()
 	rest.InitializeRouter()

@@ -14,22 +14,27 @@ import (
 )
 
 type Debugger struct {
-	running        bool
+	Running        bool                   `json: running`
 	LocalVariables map[string]interface{} `json:"localVars"`
 	LineNo         int                    `json:"lineNo"`
 	Function       string                 `json:"funcName"`
-	Breakpoints    []int
+	Breakpoints    []int                  `json: breakpoints`
 	Code           string
+	urlMap         map[string]string
 }
 
 func NewDebugger() *Debugger {
-	return &Debugger{running: false}
+	urlMap := make(map[string]string)
+	urlMap["python"] = fmt.Sprintf("%s:%s/debug", os.Getenv("PYTHON_DEBUGGER_HOST"), os.Getenv("PYTHON_DEBUGGER_PORT"))
+	fmt.Print(urlMap["python"])
+	return &Debugger{Running: false, Breakpoints: []int{}, urlMap: urlMap}
 }
 
 func (d *Debugger) SetBreakpoint(breakpoint int) error {
 	d.Breakpoints = append(d.Breakpoints, breakpoint)
-	if d.running {
-		_, err := http.Get(fmt.Sprintf("http://localhost:8000/debug/set_breakpoint/%d", breakpoint))
+	if d.Running {
+		reqUrl := fmt.Sprintf("%s/set_breakpoint/%d", d.urlMap["python"], breakpoint)
+		_, err := http.Get(reqUrl)
 		if err != nil {
 			return err
 		}
@@ -42,7 +47,6 @@ func (d *Debugger) Debug(code utils.Code) {
 	case "python":
 		err := d.setupPythonDebug(code)
 		if err != nil {
-			print(err.Error())
 			return
 		}
 	}
@@ -50,7 +54,11 @@ func (d *Debugger) Debug(code utils.Code) {
 
 func (d *Debugger) setupPythonDebug(code utils.Code) error {
 	cwd, err := os.Getwd()
-	pathToDebugger := filepath.FromSlash(cwd + "/static/python_debugger/debugger_api.py")
+	// Write to template file
+	templateFileContent := "def coderunners_exec():\n" + code.Content
+	ioutil.WriteFile(cwd+"/debugger/python_debugger/template.py", []byte(templateFileContent), 0644)
+
+	pathToDebugger := filepath.FromSlash(cwd + "/debugger/python_debugger/debugger_api.py")
 	cmd := exec.Command("python", pathToDebugger)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -62,15 +70,9 @@ func (d *Debugger) setupPythonDebug(code utils.Code) error {
 	requestBody, _ := json.Marshal(map[string][]int{
 		"breakpoints": d.Breakpoints,
 	})
-
-	// Write to template file
-	f, _ := os.Open(cwd + "/static/python_debugger/template.py")
-	f.Truncate(0)
-	f.Seek(0, 0)
-	fmt.Fprint(f, code.Content)
-
 	// Call Python Debugger API
-	resp, err := http.Post("http://localhost:8000/debug/setup", "application/json", bytes.NewBuffer(requestBody))
+	reqUrl := fmt.Sprintf("%s/setup", d.urlMap["python"])
+	resp, err := http.Post(reqUrl, "application/json", bytes.NewBuffer(requestBody))
 	if err != nil {
 		return err
 	}
@@ -82,13 +84,13 @@ func (d *Debugger) setupPythonDebug(code utils.Code) error {
 	if err != nil {
 		return err
 	}
+
 	err = json.Unmarshal(body, d)
 
 	if err != nil {
 		return err
 	}
 
-	d.running = true
 	return nil
 }
 
@@ -105,7 +107,8 @@ func (d *Debugger) StepOver() error {
 }
 
 func (d *Debugger) step(stepType string) error {
-	resp, err := http.Get("http://localhost:8000/debug/" + stepType)
+	reqUrl := fmt.Sprintf("%s/%s", d.urlMap["python"], stepType)
+	resp, err := http.Get(reqUrl)
 
 	if err != nil {
 		return err

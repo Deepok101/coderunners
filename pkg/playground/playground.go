@@ -24,7 +24,7 @@ func NewPlayground(customPath string) Playground {
 	p := playground{}
 
 	if customPath == "" {
-		folderName := "coderunners"
+		folderName := "tmp"
 		cwd, err := os.Getwd()
 
 		if err != nil {

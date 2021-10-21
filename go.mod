@@ -13,6 +13,7 @@ require (
 	github.com/go-playground/validator/v10 v10.3.0
 	github.com/gogo/protobuf v1.3.1 // indirect
 	github.com/gorilla/mux v1.7.4
+	github.com/joho/godotenv v1.4.0
 	github.com/moby/term v0.0.0-20200611042045-63b9a826fb74 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
